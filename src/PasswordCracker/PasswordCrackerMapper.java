@@ -9,6 +9,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import java.util.concurrent.*;
 
 public class PasswordCrackerMapper
         extends Mapper<Text, Text, Text, Text> {
@@ -24,15 +25,17 @@ public class PasswordCrackerMapper
         FileSystem hdfs = FileSystem.get(conf);
 
         TerminationChecker terminationChecker = new TerminationChecker(hdfs, flagFilename);
+        terminationChecker.checkPeriodically();
 
-        /** COMPLETE **/
         long rangeBegin = Long.valueOf(key.toString());
-        long rangeEnd = Long.valueOf(key.toString());
+        long rangeEnd = Long.valueOf(value.toString());
 
+        System.out.println("B: " + rangeBegin + " E: " + rangeEnd);
 
         String encryptedPassword = conf.get("encryptedPassword");
         String password = findPasswordInRange(rangeBegin, rangeEnd, encryptedPassword, terminationChecker);
-
+        if (password != null)
+            context.write(new Text(encryptedPassword), new Text(password));
 
     }
 }
@@ -58,6 +61,21 @@ class TerminationChecker {
     }
 
     public void setTerminated() throws IOException {
-        isDone = true;
+        fs.create(flagPath);
+    }
+
+    public void checkPeriodically() {
+        Runnable temp =  new Runnable(){      
+            @Override
+            public void run(){
+                try {
+                    Thread.sleep(1000);
+                    if (fs.exists(flagPath))
+                        isDone = true;
+                } catch (Exception e) {
+
+                }
+            }};
+        new Thread(temp).start();
     }
 }

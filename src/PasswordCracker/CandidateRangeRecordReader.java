@@ -30,7 +30,6 @@ public class CandidateRangeRecordReader extends RecordReader<Text, Text> {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context)
             throws IOException, InterruptedException {
-        /** COMPLETE **/
         CandidateRangeInputSplit candidataRangeSplit = (CandidateRangeInputSplit) split;
 
         rangeBegin = candidataRangeSplit.getInputRange();
@@ -44,8 +43,13 @@ public class CandidateRangeRecordReader extends RecordReader<Text, Text> {
 
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
-        /** COMPLETE **/
-        return !done;
+        boolean tmpDone = false;
+        if (done == false) {
+            tmpDone = true;
+            done = true;
+        }
+
+        return tmpDone;
     }
 
     @Override
