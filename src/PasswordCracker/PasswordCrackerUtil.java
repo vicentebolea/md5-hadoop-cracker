@@ -43,9 +43,31 @@ public class PasswordCrackerUtil {
     // if not, return null.
 
     public static String findPasswordInRange(long rangeBegin, long rangeEnd, String encryptedPassword, TerminationChecker checker)
-            throws IOException {
-        /** COMPLETE **/
+        throws IOException {
 
+        char passwdFirstChar = encryptedPassword.charAt(0);    // Our little optimization
+        int[] arrayKey = new int[PASSWORD_LEN]; // The array which holds each alpha-num item
+        String passwd = null;
+
+        // Compute first array
+        long longKey = rangeBegin;
+        transformDecToBase36(longKey, arrayKey);
+
+        for (; longKey < rangeEnd && !checker.isTerminated(); longKey++) {
+            String rawKey = transformIntoStr(arrayKey);
+            String md5Key = encrypt(rawKey, getMessageDigest());
+
+            // Avoid full string comparison
+            if (md5Key.charAt(0) == passwdFirstChar) {
+                if (encryptedPassword.equals(md5Key)) {
+                    passwd = rawKey;
+                    break;
+                }
+            }
+            getNextCandidate(arrayKey);
+        }
+
+        return passwd;
     }
 
     /* ###  transformDecToBase36  ###
@@ -54,12 +76,30 @@ public class PasswordCrackerUtil {
     */
 
     private static void transformDecToBase36(long numInDec, int[] numArrayInBase36) {
-        /** COMPLETE **/
+        long quotient = numInDec; 
+        int passwdlength = numArrayInBase36.length - 1;
 
+        for (int i = passwdlength; quotient > 0l; i--) {
+            int reminder = (int) (quotient % 36l);
+            quotient /= 36l;
+            numArrayInBase36[i] = reminder;
+        }
     }
 
     private static void getNextCandidate(int[] candidateChars) {
-        /** OPTIONAL **/
+        int i = candidateChars.length - 1;
+
+        while(i >= 0) {
+            candidateChars[i] += 1;
+
+            if (candidateChars[i] >= 36) {
+                candidateChars[i] = 0;
+                i--;
+
+            } else {
+                break;
+            }
+        }
     }
 
     private static String transformIntoStr(int[] candidateChars) {

@@ -33,6 +33,9 @@ public class CandidateRangeRecordReader extends RecordReader<Text, Text> {
         /** COMPLETE **/
         CandidateRangeInputSplit candidataRangeSplit = (CandidateRangeInputSplit) split;
 
+        rangeBegin = candidataRangeSplit.getInputRange();
+        rangeEnd = String.valueOf(Long.valueOf(rangeBegin) + candidataRangeSplit.getLength());
+
     }
 
     // Normally, this function in the RecordReader is called repeatedly to polulate the key and value objects for the mapper.
@@ -42,7 +45,7 @@ public class CandidateRangeRecordReader extends RecordReader<Text, Text> {
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         /** COMPLETE **/
-
+        return !done;
     }
 
     @Override

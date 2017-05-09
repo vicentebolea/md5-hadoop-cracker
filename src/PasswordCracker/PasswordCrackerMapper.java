@@ -26,7 +26,8 @@ public class PasswordCrackerMapper
         TerminationChecker terminationChecker = new TerminationChecker(hdfs, flagFilename);
 
         /** COMPLETE **/
-
+        long rangeBegin = Long.valueOf(key.toString());
+        long rangeEnd = Long.valueOf(key.toString());
 
 
         String encryptedPassword = conf.get("encryptedPassword");
@@ -45,6 +46,7 @@ public class PasswordCrackerMapper
 class TerminationChecker {
     FileSystem fs;  
     Path flagPath;
+    boolean isDone = false;
 
     TerminationChecker(FileSystem fs, String flagFilename) {
         this.fs = fs;
@@ -52,10 +54,10 @@ class TerminationChecker {
     }
 
     public boolean isTerminated() throws IOException {
-	/** COMPLETE **/
+        return isDone;
     }
 
     public void setTerminated() throws IOException {
-	/** COMPLETE **/
+        isDone = true;
     }
 }

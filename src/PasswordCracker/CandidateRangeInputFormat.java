@@ -52,6 +52,13 @@ public class CandidateRangeInputFormat extends InputFormat<Text, Text> {
         long subRangeSize = (TOTAL_PASSWORD_RANGE_SIZE + numberOfSplit - 1) / numberOfSplit;
 
         /** COMPLETE **/
+        // For each subrange store it in the InputSlip list
+        //
+        for (int i = 0; i < numberOfSplit; i++) {
+            long currentSubRange = i*subRangeSize;
+            CandidateRangeInputSplit split = new CandidateRangeInputSplit(
+                    String.valueOf(currentSubRange), subRangeSize, null);
+        }
 
         return splits;
     }
